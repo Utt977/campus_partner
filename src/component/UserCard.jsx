@@ -35,16 +35,16 @@ const UserCard = ({ user }) => {
 
   // Configure swipe handlers
   const swipeHandlers = useSwipeable({
-    onSwipedUp: () => {
-      handleSendRequest('interested', _id);
-      setSwipeDirection('up');
-      api.start({ y: -500, opacity: 0 });
+    onSwipedLeft: () => {
+      handleSendRequest('ignored', _id);
+      setSwipeDirection('left');
+      api.start({ x: -500, opacity: 0 }); // Animate swipe left
       setIsSwiped(true);
     },
-    onSwipedDown: () => {
-      handleSendRequest('ignored', _id);
-      setSwipeDirection('down');
-      api.start({ y: 500, opacity: 0 });
+    onSwipedRight: () => {
+      handleSendRequest('interested', _id);
+      setSwipeDirection('right');
+      api.start({ x: 500, opacity: 0 }); // Animate swipe right
       setIsSwiped(true);
     },
     preventScrollOnSwipe: true,
@@ -93,10 +93,10 @@ const UserCard = ({ user }) => {
           <animated.div
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white z-10"
           >
-            {swipeDirection === 'up' && (
+            {swipeDirection === 'right' && (
               <div className="bg-green-500 px-6 py-2 rounded-full text-center">Interested</div>
             )}
-            {swipeDirection === 'down' && (
+            {swipeDirection === 'left' && (
               <div className="bg-red-500 px-6 py-2 rounded-full text-center">Ignored</div>
             )}
           </animated.div>
