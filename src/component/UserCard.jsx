@@ -4,13 +4,21 @@ import { useDispatch } from 'react-redux';
 import { useSwipeable } from 'react-swipeable';
 import { BASE_URL } from '../utils/constant';
 import { removeUserFromFeed } from '../utils/feedSlice';
-import { useSpring, animated } from 'react-spring'; // Import react-spring
+import { useSpring, animated } from 'react-spring';
 
 const UserCard = ({ user }) => {
   const dispatch = useDispatch();
   const { _id, firstName, lastName, age, gender, about, photoUrl, skills, college } = user;
 
   const [swipeDirection, setSwipeDirection] = useState(null);
+  const [isSwiped, setIsSwiped] = useState(false);
+
+  const [springProps, api] = useSpring(() => ({
+    x: 0,
+    y: 0,
+    opacity: 1,
+    config: { tension: 200, friction: 15 },
+  }));
 
   const handleSendRequest = async (status, userId) => {
     try {
@@ -29,41 +37,37 @@ const UserCard = ({ user }) => {
   const swipeHandlers = useSwipeable({
     onSwipedUp: () => {
       handleSendRequest('interested', _id);
-      setSwipeDirection('up'); // Set swipe direction for feedback
+      setSwipeDirection('up');
+      api.start({ y: -500, opacity: 0 });
+      setIsSwiped(true);
     },
     onSwipedDown: () => {
       handleSendRequest('ignored', _id);
-      setSwipeDirection('down'); // Set swipe direction for feedback
+      setSwipeDirection('down');
+      api.start({ y: 500, opacity: 0 });
+      setIsSwiped(true);
     },
     preventScrollOnSwipe: true,
     delta: 50,
   });
 
-  // Spring animation for the swipe direction feedback
-  const [props, set] = useSpring(() => ({ opacity: 0 }));
-
-  // Change animation opacity and direction when swipe happens
-  if (swipeDirection) {
-    set({ opacity: 1 });
-    setTimeout(() => set({ opacity: 0 }), 500); // Fade feedback after some time
-  }
-
   return (
-    <div
-      className="card bg-base-300 w-96 shadow-xl min-h-[300px] sm:min-h-[350px] md:min-h-[400px]"
+    <animated.div
+      className="card bg-base-300 w-96 shadow-xl min-h-[350px] sm:min-h-[400px] md:min-h-[450px] relative"
       {...swipeHandlers} // Attach swipe handlers to the card
+      style={springProps}
     >
       <figure>
-        <img src={photoUrl} alt="user" />
+        <img src={photoUrl} alt="user" className="w-full h-full object-cover" />
       </figure>
       <div className="card-body">
-        <h2 className="card-title">{firstName + ' ' + lastName}</h2>
-        
-        {age && gender && <p>{age + ', ' + gender}</p>}
+        <h2 className="card-title text-xl font-bold">{`${firstName} ${lastName}`}</h2>
+
+        {age && gender && <p className="">{`${age}, ${gender}`}</p>}
 
         {/* Show College */}
         {college && (
-          <p className="mt-2 text-sm font-semibold">
+          <p className="mt-2 text-sm font-semibold ">
             {college}
           </p>
         )}
@@ -82,20 +86,21 @@ const UserCard = ({ user }) => {
           </div>
         )}
 
-        <p>{about}</p>
+        <p className="mt-3">{about}</p>
 
         {/* Swipe feedback animation */}
-        <animated.div
-          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white z-10`}
-          style={{ opacity: props.opacity }}
-        >
-          {swipeDirection === 'up' && (
-            <div className="bg-green-500 px-6 py-2 rounded-full text-center">Interested</div>
-          )}
-          {swipeDirection === 'down' && (
-            <div className="bg-red-500 px-6 py-2 rounded-full text-center">Ignored</div>
-          )}
-        </animated.div>
+        {!isSwiped && (
+          <animated.div
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white z-10"
+          >
+            {swipeDirection === 'up' && (
+              <div className="bg-green-500 px-6 py-2 rounded-full text-center">Interested</div>
+            )}
+            {swipeDirection === 'down' && (
+              <div className="bg-red-500 px-6 py-2 rounded-full text-center">Ignored</div>
+            )}
+          </animated.div>
+        )}
 
         <div className="card-actions justify-center my-4 gap-12">
           <button
@@ -112,7 +117,7 @@ const UserCard = ({ user }) => {
           </button>
         </div>
       </div>
-    </div>
+    </animated.div>
   );
 };
 
