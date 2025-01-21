@@ -4,7 +4,7 @@ import axios from "axios";
 import { BASE_URL } from "../utils/constant";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
-
+s
 const EditProfile = ({ user }) => {
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
@@ -14,6 +14,7 @@ const EditProfile = ({ user }) => {
   const [about, setAbout] = useState(user.about || "");
   const [skills, setSkills] = useState(user.skills || []); // Skills state
   const [newSkill, setNewSkill] = useState(""); // Input for adding new skill
+  const [college, setCollege] = useState(user.college || ""); // College state
   const [error, setError] = useState("");
   const dispatch = useDispatch();
   const [showToast, setShowToast] = useState(false);
@@ -31,6 +32,7 @@ const EditProfile = ({ user }) => {
           gender,
           about,
           skills, // Include skills in API request
+          college, // Include college in API request
         },
         { withCredentials: true }
       );
@@ -57,9 +59,9 @@ const EditProfile = ({ user }) => {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row justify-center my-10 gap-6">
+      <div className="flex flex-col lg:flex-row md:flex-row justify-center my-10 gap-6">
         <div className="flex justify-center mx-4">
-          <div className="card bg-base-300 w-full lg:w-96 shadow-xl">
+          <div className="card bg-base-300 w-full sm:w-full md:w-96 lg:w-96 shadow-xl">
             <div className="card-body">
               <h2 className="card-title justify-center">Edit Profile</h2>
               <div>
@@ -170,6 +172,17 @@ const EditProfile = ({ user }) => {
                     ))}
                   </div>
                 </label>
+                <label className="form-control w-full max-w-xs my-2">
+                  <div className="label">
+                    <span className="label-text">College:</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={college}
+                    className="input input-bordered w-full max-w-xs"
+                    onChange={(e) => setCollege(e.target.value)}
+                  />
+                </label>
               </div>
               <p className="text-red-500">{error}</p>
               <div className="card-actions justify-center m-2">
@@ -180,12 +193,18 @@ const EditProfile = ({ user }) => {
             </div>
           </div>
         </div>
+
+        {/* Adjust UserCard to have consistent small size on all screens */}
         <div className="flex justify-center mx-4">
-          <UserCard
-            user={{ firstName, lastName, photoUrl, age, gender, about, skills }}
-          />
+          <div className="w-full sm:w-full md:w-96 lg:w-96">
+            <UserCard
+              user={{ firstName, lastName, photoUrl, age, gender, about, skills, college }}
+            />
+          </div>
         </div>
       </div>
+
+      {/* Toast notification */}
       {showToast && (
         <div className="toast toast-top toast-center">
           <div className="alert alert-success">
