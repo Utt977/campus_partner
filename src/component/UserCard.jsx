@@ -7,7 +7,7 @@ import { removeUserFromFeed } from '../utils/feedSlice';
 
 const UserCard = ({ user }) => {
   const dispatch = useDispatch();
-  const { _id, firstName, lastName, age, gender, about, photoUrl } = user;
+  const { _id, firstName, lastName, age, gender, about, photoUrl, skills } = user;
 
   const handleSendRequest = async (status, userId) => {
     try {
@@ -42,6 +42,21 @@ const UserCard = ({ user }) => {
         <h2 className="card-title">{firstName + ' ' + lastName}</h2>
         <p>{about}</p>
         {age && gender && <p>{age + ', ' + gender}</p>}
+
+        {/* Skills Field */}
+        {skills && skills.length > 0 && (
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">Skills</h3>
+            <ul className="flex flex-wrap gap-2 mt-2">
+              {skills.map((skill, index) => (
+                <li key={index} className="px-4 py-1 bg-indigo-500 text-white rounded-full text-sm">
+                  {skill}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div className="card-actions justify-center my-4 gap-12">
           <button
             className="btn btn-primary"
