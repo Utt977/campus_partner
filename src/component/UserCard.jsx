@@ -1,24 +1,13 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React from 'react';
 import { useDispatch } from 'react-redux';
-import { useSwipeable } from 'react-swipeable';
+import { motion } from 'framer-motion';
 import { BASE_URL } from '../utils/constant';
 import { removeUserFromFeed } from '../utils/feedSlice';
-import { useSpring, animated } from 'react-spring';
 
 const UserCard = ({ user }) => {
   const dispatch = useDispatch();
   const { _id, firstName, lastName, age, gender, about, photoUrl, skills, college } = user;
-
-  const [swipeDirection, setSwipeDirection] = useState(null);
-  const [isSwiped, setIsSwiped] = useState(false);
-
-  const [springProps, api] = useSpring(() => ({
-    x: 0,
-    y: 0,
-    opacity: 1,
-    config: { tension: 200, friction: 15 },
-  }));
 
   const handleSendRequest = async (status, userId) => {
     try {
@@ -33,91 +22,88 @@ const UserCard = ({ user }) => {
     }
   };
 
-  // Configure swipe handlers
-  const swipeHandlers = useSwipeable({
-    onSwipedLeft: () => {
-      handleSendRequest('ignored', _id);
-      setSwipeDirection('left');
-      api.start({ x: -500, opacity: 0 }); // Animate swipe left
-      setIsSwiped(true);
+  const variants = {
+    initial: {
+      backgroundPosition: '0 50%',
     },
-    onSwipedRight: () => {
-      handleSendRequest('interested', _id);
-      setSwipeDirection('right');
-      api.start({ x: 500, opacity: 0 }); // Animate swipe right
-      setIsSwiped(true);
+    animate: {
+      backgroundPosition: ['0, 50%', '100% 50%', '0 50%'],
     },
-    preventScrollOnSwipe: true,
-    delta: 50,
-  });
+  };
 
   return (
-    <animated.div
-      className="card bg-base-300 w-96 shadow-xl min-h-[350px] sm:min-h-[400px] md:min-h-[450px] relative"
-      {...swipeHandlers} // Attach swipe handlers to the card
-      style={springProps}
-    >
-      <figure>
-        <img src={photoUrl} alt="user" className="w-full h-full object-cover" />
-      </figure>
-      <div className="card-body">
-        <h2 className="card-title text-xl font-bold">{`${firstName} ${lastName}`}</h2>
+    <div className="relative p-[4px] group w-72 sm:w-80 md:w-72 lg:w-72 w-[90%] sm:w-80 shadow-xl min-h-[300px]">
+      {/* Animated Background */}
+      <motion.div
+        variants={variants}
+        initial="initial"
+        animate="animate"
+        transition={{
+          duration: 5,
+          repeat: Infinity,
+          repeatType: 'reverse',
+        }}
+        style={{
+          backgroundSize: '400% 400%',
+        }}
+        className="absolute inset-0 rounded-xl z-[-1] opacity-60 blur-xl transition duration-500 will-change-transform bg-[radial-gradient(circle_farthest-side_at_0_100%,#00ccb1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#7b61ff,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#ffc414,transparent),radial-gradient(circle_farthest-side_at_0_0,#1ca0fb,#141316)]"
+      />
 
-        {age && gender && <p className="">{`${age}, ${gender}`}</p>}
+      {/* Card Content */}
+      <div className="relative bg-base-300 rounded-xl">
+        <figure className="w-full aspect-w-16 aspect-h-10">
+          <img
+            src={photoUrl}
+            alt="user"
+            className="w-full h-full object-cover rounded-t-xl"
+          />
+        </figure>
+        <div className="p-3">
+          <h2 className="text-lg font-bold">{`${firstName} ${lastName}`}</h2>
 
-        {/* Show College */}
-        {college && (
-          <p className="mt-2 text-sm font-semibold ">
-            {college}
-          </p>
-        )}
+          {age && gender && <p className="text-sm">{`${age}, ${gender}`}</p>}
 
-        {/* Skills Field */}
-        {skills && skills.length > 0 && (
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold">Skills</h3>
-            <ul className="flex flex-wrap gap-2 mt-2">
-              {skills.map((skill, index) => (
-                <li key={index} className="px-4 py-1 bg-indigo-500 text-white rounded-full text-sm">
-                  {skill}
-                </li>
-              ))}
-            </ul>
+          {college && (
+            <p className="mt-2 text-sm font-semibold">
+              {college}
+            </p>
+          )}
+
+          {skills && skills.length > 0 && (
+            <div className="mt-3">
+              <h3 className="text-sm font-semibold">Skills</h3>
+              <ul className="flex flex-wrap gap-1 mt-2">
+                {skills.map((skill, index) => (
+                  <li key={index} className="px-3 py-1 bg-indigo-500 text-white rounded-full text-xs">
+                    {skill}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <p className="mt-2 text-sm">{about}</p>
+
+          <div className="card-actions justify-center my-3 gap-4">
+            {/* Ignore Button */}
+            <button
+              onClick={() => handleSendRequest('ignored', _id)}
+              className="inline-flex items-center justify-center px-6 py-3 bg-blue-400 text-white rounded-full text-sm font-medium"
+            >
+              Ignore
+            </button>
+
+            {/* Interested Button */}
+            <button
+              onClick={() => handleSendRequest('interested', _id)}
+              className="inline-flex items-center justify-center px-6 py-3 bg-purple-400 text-white rounded-full text-sm font-medium"
+            >
+              Interested
+            </button>
           </div>
-        )}
-
-        <p className="mt-3">{about}</p>
-
-        {/* Swipe feedback animation */}
-        {!isSwiped && (
-          <animated.div
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white z-10"
-          >
-            {swipeDirection === 'right' && (
-              <div className="bg-green-500 px-6 py-2 rounded-full text-center">Interested</div>
-            )}
-            {swipeDirection === 'left' && (
-              <div className="bg-red-500 px-6 py-2 rounded-full text-center">Ignored</div>
-            )}
-          </animated.div>
-        )}
-
-        <div className="card-actions justify-center my-4 gap-12">
-          <button
-            className="btn btn-primary"
-            onClick={() => handleSendRequest('ignored', _id)}
-          >
-            Ignore
-          </button>
-          <button
-            className="btn btn-secondary"
-            onClick={() => handleSendRequest('interested', _id)}
-          >
-            Interested
-          </button>
         </div>
       </div>
-    </animated.div>
+    </div>
   );
 };
 

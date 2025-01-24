@@ -197,7 +197,7 @@ const EditProfile = ({ user }) => {
 
         {/* User Card */}
         <div className="flex justify-center">
-          <div className="card  w-[430px] max-w-full shadow-xl">
+          <div className="card  w-[320px] max-w-full shadow-xl">
             <UserCard
               user={{ firstName, lastName, photoUrl, age, gender, about, skills, college }}
             />
