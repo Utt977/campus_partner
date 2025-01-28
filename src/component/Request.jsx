@@ -41,61 +41,62 @@ const Request = () => {
 
   if (requests.length === 0)
     return (
-      <h1 className="flex justify-center my-10 font-bold text-3xl">
+      <h1 className="flex justify-center my-10 font-bold text-3xl text-white">
         No Requests Found
       </h1>
     );
 
   return (
-    <div className="text-center my-10">
-      <h1 className="text-bold text-white text-3xl mb-5">Requests</h1>
-      <div className="flex flex-col gap-4 items-center">
-        {requests.map((request) => {
-          const { _id, firstName, lastName, photoUrl, age, gender, about } =
-            request.fromUserId;
+    <div className="text-center my-10 px-4 md:px-10">
+      <h1 className="font-bold text-white text-3xl mb-6">Requests</h1>
 
-          return (
-            <div
-              key={_id}
-              className="flex flex-col md:flex-row items-center bg-base-300 w-11/12 md:w-3/4 p-4 rounded-lg shadow-lg"
-            >
-              {/* Profile Image */}
-              <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-4">
-                <img
-                  alt="photo"
-                  className="w-16 h-16 rounded-full object-cover"
-                  src={photoUrl}
-                />
-              </div>
-              {/* User Details */}
-              <div className="flex-grow text-center md:text-left">
-                <h2 className="font-bold text-lg text-white">
-                  {firstName + ' ' + lastName}
+      {requests.map((request) => {
+        const { _id, firstName, lastName, photoUrl, age, gender, college } =
+          request.fromUserId;
+
+        return (
+          <div
+            key={_id}
+            className="flex items-center justify-between gap-4 mb-6 md:mb-4 p-4 rounded-lg bg-base-300 shadow-md transition-all duration-300 hover:scale-105 hover:bg-base-400 w-full md:w-3/4 lg:w-1/2 mx-auto"
+          >
+            {/* Profile Section: Profile picture and user details */}
+            <div className="flex items-center gap-4">
+              <img
+                alt="photo"
+                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                src={photoUrl}
+              />
+              <div className="text-center md:text-left">
+                <h2 className="font-bold text-xl text-white">
+                  {firstName + " " + lastName}
                 </h2>
                 {age && gender && (
-                  <p className="text-sm text-gray-300">{`${age}, ${gender}`}</p>
+                  <p className="text-sm text-gray-400">
+                    {age + ", " + gender}
+                  </p>
                 )}
-                <p className="text-sm text-gray-400">{about}</p>
-              </div>
-              {/* Action Buttons */}
-              <div className="flex flex-col gap-2 mt-4 md:mt-0 w-full md:w-auto">
-                <button
-                  className="btn btn-primary text-sm w-full"
-                  onClick={() => reviewRequest('accepted', request._id)}
-                >
-                  Accept
-                </button>
-                <button
-                  className="btn btn-secondary text-sm w-full"
-                  onClick={() => reviewRequest('rejected', request._id)}
-                >
-                  Reject
-                </button>
+                <p className="text-sm text-gray-300 mt-2">{college}</p>
               </div>
             </div>
-          );
-        })}
-      </div>
+
+            {/* Action Buttons: Accept/Reject buttons */}
+            <div className="flex flex-col gap-2 mt-4 md:mt-0 ml-auto">
+              <button
+                className="btn btn-primary px-5 py-2 text-sm w-24"
+                onClick={() => reviewRequest('accepted', request._id)}
+              >
+                Accept
+              </button>
+              <button
+                className="btn btn-secondary px-5 py-2 text-sm w-24"
+                onClick={() => reviewRequest('rejected', request._id)}
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };
