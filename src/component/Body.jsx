@@ -32,11 +32,14 @@ const Body = () => {
   }, []);
 
   return (
-    <div>
+    <div className="flex flex-col min-h-screen"> {/* Flex container to ensure full height */}
       <Navbar />
-      <Outlet />
+      <main className="flex-grow"> {/* Ensures content takes up available space */}
+        <Outlet />
+      </main>
       <Footer />
     </div>
   );
 };
+
 export default Body;

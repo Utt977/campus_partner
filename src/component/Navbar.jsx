@@ -25,7 +25,7 @@ const Navbar = () => {
   return (
     <>
       <div className="navbar bg-base-300">
-        <div className="flex-1">
+        <div className="flex-1 ml-[-15px]">
           <Link to="/" className="btn btn-ghost text-xl font-semibold text-primary">Campus Partner</Link>
         </div>
         {user && (

@@ -32,7 +32,7 @@ const UserCard = ({ user }) => {
   };
 
   return (
-    <div className="relative p-[4px] group w-72 sm:w-80 md:w-72 lg:w-72 w-[90%] sm:w-80 shadow-xl min-h-[300px]">
+    <div className="relative p-[4px] group  md:w-72 lg:w-72 w-[90%] sm:w-80 shadow-xl min-h-[300px]">
       {/* Animated Background */}
       <motion.div
         variants={variants}
