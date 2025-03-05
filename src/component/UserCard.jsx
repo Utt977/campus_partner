@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
 import { BASE_URL } from '../utils/constant';
 import { removeUserFromFeed } from '../utils/feedSlice';
+import { FaTimes, FaHeart, FaBirthdayCake, FaTransgender, FaUniversity, FaStar } from 'react-icons/fa';
 
 const UserCard = ({ user }) => {
   const dispatch = useDispatch();
@@ -11,99 +12,120 @@ const UserCard = ({ user }) => {
 
   const handleSendRequest = async (status, userId) => {
     try {
-      const res = await axios.post(
+      await axios.post(
         `${BASE_URL}/request/send/${status}/${userId}`,
         {},
         { withCredentials: true }
       );
       dispatch(removeUserFromFeed(userId));
     } catch (err) {
-      console.log(err);
+      console.error('Request Error:', err.response?.data || err.message);
     }
   };
 
-  const variants = {
-    initial: {
-      backgroundPosition: '0 50%',
-    },
-    animate: {
-      backgroundPosition: ['0, 50%', '100% 50%', '0 50%'],
-    },
-  };
-
   return (
-    <div className="relative p-[4px] group  md:w-72 lg:w-72 w-[90%] sm:w-80 shadow-xl min-h-[300px]">
-      {/* Animated Background */}
-      <motion.div
-        variants={variants}
-        initial="initial"
-        animate="animate"
-        transition={{
-          duration: 5,
-          repeat: Infinity,
-          repeatType: 'reverse',
-        }}
-        style={{
-          backgroundSize: '400% 400%',
-        }}
-        className="absolute inset-0 rounded-xl z-[-1] opacity-60 blur-xl transition duration-500 will-change-transform bg-[radial-gradient(circle_farthest-side_at_0_100%,#00ccb1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#7b61ff,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#ffc414,transparent),radial-gradient(circle_farthest-side_at_0_0,#1ca0fb,#141316)]"
-      />
+    <motion.div 
+      className="relative w-full max-w-sm mx-4 sm:mx-auto bg-gray-800 rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300 mb-16 "
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+    >
+      {/* Profile Image Section */}
+      <div className="relative h-72 w-full"> 
+        <img
+          src={photoUrl}
+          alt={`${firstName} ${lastName}`}
+          className="w-full h-full object-contain object-center" 
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/50 to-transparent" />
+      </div>
 
-      {/* Card Content */}
-      <div className="relative bg-base-300 rounded-xl">
-        <figure className="w-full aspect-w-16 aspect-h-10">
-          <img
-            src={photoUrl}
-            alt="user"
-            className="w-full h-full object-cover rounded-t-xl"
-          />
-        </figure>
-        <div className="p-3">
-          <h2 className="text-lg font-bold">{`${firstName} ${lastName}`}</h2>
-
-          {age && gender && <p className="text-sm">{`${age}, ${gender}`}</p>}
-
-          {college && (
-            <p className="mt-2 text-sm font-semibold">
-              {college}
-            </p>
-          )}
-
-          {skills && skills.length > 0 && (
-            <div className="mt-3">
-              <h3 className="text-sm font-semibold">Skills</h3>
-              <ul className="flex flex-wrap gap-1 mt-2">
-                {skills.map((skill, index) => (
-                  <li key={index} className="px-3 py-1 bg-indigo-500 text-white rounded-full text-xs">
-                    {skill}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <p className="mt-2 text-sm">{about}</p>
-
-          <div className="card-actions justify-center my-3 gap-4">
-            {/* Ignore Button */}
-            <button
-              onClick={() => handleSendRequest('ignored', _id)}
-              className="inline-flex items-center justify-center px-6 py-3 bg-blue-400 text-white rounded-full text-sm font-medium"
-            >
-              Ignore
-            </button>
-
-            {/* Interested Button */}
-            <button
-              onClick={() => handleSendRequest('interested', _id)}
-              className="inline-flex items-center justify-center px-6 py-3 bg-purple-400 text-white rounded-full text-sm font-medium"
-            >
-              Interested
-            </button>
+      {/* Profile Content */}
+      <div className="p-6 space-y-4">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold text-gray-100">
+            {firstName} {lastName}
+          </h2>
+          
+          <div className="flex flex-wrap gap-4 text-sm text-gray-400">
+            {age && (
+              <span className="flex items-center gap-2">
+                <FaBirthdayCake className="text-purple-400" />
+                {age} years
+              </span>
+            )}
+            {gender && (
+              <span className="flex items-center gap-2">
+                <FaTransgender className="text-blue-400" />
+                {gender}
+              </span>
+            )}
           </div>
         </div>
+
+        {/* College */}
+        {college && (
+          <div className="flex items-center gap-2 text-gray-400">
+            <FaUniversity className="text-green-400 flex-shrink-0" />
+            <span className="truncate">{college}</span>
+          </div>
+        )}
+
+        {/* Skills */}
+        {skills?.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-300">
+              <FaStar className="text-yellow-400" />
+              Skills
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 text-sm bg-gray-700 text-gray-100 rounded-full"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* About */}
+        {about && (
+          <p className="text-gray-400 text-sm leading-relaxed line-clamp-3">
+            {about}
+          </p>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 mt-4">
+          <motion.button
+            onClick={() => handleSendRequest('ignored', _id)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-red-400 rounded-lg transition-colors"
+          >
+            <FaTimes className="text-lg" />
+            Pass
+          </motion.button>
+
+          <motion.button
+            onClick={() => handleSendRequest('interested', _id)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors"
+          >
+            <FaHeart className="text-lg" />
+            Connect
+          </motion.button>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

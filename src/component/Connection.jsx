@@ -1,23 +1,30 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/constant";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnection } from "../utils/connectionSlice";
 import { Link } from "react-router-dom";
+import { FaComment, FaRegCommentDots } from "react-icons/fa";
+import TimeAgo from 'timeago-react';
 
 const Connection = () => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const connections = useSelector((store) => store.connections);
   const dispatch = useDispatch();
 
   const fetchConnections = async () => {
     try {
-      const res = await axios.get(BASE_URL + "/user/connections", {
-        withCredentials: true,
+      const { data } = await axios.get(`${BASE_URL}/user/connections`, {
+        withCredentials: true
       });
-      dispatch(addConnection(res?.data?.data));
+      
+      dispatch(addConnection(data?.data || []));
+      setError(null);
     } catch (err) {
-      // Handle Error Case
-      console.error(err);
+      setError(err.response?.data?.message || 'Failed to load connections');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -25,59 +32,103 @@ const Connection = () => {
     fetchConnections();
   }, []);
 
-  if (!connections) return;
-
-  if (connections.length === 0)
+  if (loading) {
     return (
-      <h1 className="flex justify-center my-10 font-bold text-3xl text-white">
-        No Connections Found
-      </h1>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 max-w-md mx-auto">
+        <div className="text-red-400 bg-red-900/20 p-4 rounded-xl flex items-center gap-3">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!connections || connections.length === 0) {
+    return (
+      <div className="text-center py-20 px-4">
+        <div className="max-w-md mx-auto">
+          <FaRegCommentDots className="text-6xl text-gray-500 mx-auto mb-6" />
+          <h2 className="text-2xl font-bold text-white mb-2">No Connections Yet</h2>
+          <p className="text-gray-400">Start building connections by accepting friend requests!</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="text-center my-10 px-4 md:px-0">
-      <h1 className="font-bold text-white text-3xl mb-6">Connections</h1>
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-white mb-8 text-center">Your Connections</h1>
+      
+      <div className="space-y-4">
+        {connections.map((connection) => {
+          const { _id, firstName, lastName, photoUrl, age, gender, college, isOnline, lastActive } = connection;
 
-      {connections.map((connection) => {
-        const { _id, firstName, lastName, photoUrl, age, gender, college, about } =
-          connection;
+          return (
+            <div 
+              key={_id}
+              className="group flex items-center justify-between p-4 bg-gray-800 rounded-2xl hover:bg-gray-700/50 transition-all duration-300"
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <div className="relative">
+                  <img
+                    src={photoUrl || '/default-avatar.png'}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-gray-600"
+                    alt={`${firstName}'s profile`}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/default-avatar.png';
+                    }}
+                  />
+                  {isOnline && (
+                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-gray-900"></div>
+                  )}
+                </div>
 
-        return (
-          <div
-            key={_id}
-            className="flex items-center justify-between gap-4 mb-6 md:mb-4 p-4 rounded-lg bg-base-300 shadow-md transition-all duration-300 hover:scale-105 hover:bg-base-400 w-full md:w-3/4 lg:w-1/2 mx-auto"
-          >
-            {/* Profile Section: Profile picture and student details */}
-            <div className="flex items-center gap-4">
-              <img
-                alt="photo"
-                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                src={photoUrl}
-              />
-              <div className="text-center md:text-left">
-                <h2 className="font-bold text-xl text-white">
-                  {firstName + " " + lastName}
-                </h2>
-                {age && gender && (
-                  <p className="text-sm text-gray-400">
-                    {age + ", " + gender}
-                  </p>
-                )}
-                <p className="text-sm text-gray-300 mt-2">{college}</p>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-white font-semibold">
+                      {firstName} {lastName}
+                    </h3>
+                    {!isOnline && lastActive && (
+                      <span className="text-xs text-gray-400">
+                        <TimeAgo datetime={lastActive} />
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="text-sm text-gray-400">
+                    {college && <p className="truncate">{college}</p>}
+                    {(age || gender) && (
+                      <p className="text-xs">
+                        {age && <span>{age} yrs</span>}
+                        {age && gender && <span className="mx-1.5">•</span>}
+                        {gender && <span>{gender}</span>}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* Chat Button Section: Justified to the end */}
-            <div className="flex justify-end">
-              <Link to={"/chat/" + _id}>
-                <button className="btn btn-primary px-5 py-2 text-sm md:text-base">
-                  Chat
-                </button>
+              <Link
+                to={`/chat/${_id}`}
+                className="p-2.5 rounded-xl bg-gray-900 hover:bg-primary transition-all duration-300 group-hover:translate-x-1"
+              >
+                <FaComment className="text-xl text-gray-400 hover:text-white" />
               </Link>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };

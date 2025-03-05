@@ -1,29 +1,77 @@
-import { useState } from "react";
+import { FaBalanceScale, FaUserLock, FaShieldAlt, FaFileContract } from 'react-icons/fa';
 
 const TermsOfService = () => {
-  const [expanded, setExpanded] = useState(false);
-
   return (
-    <div className="p-4 max-w-lg mx-auto bg-white shadow-xl rounded-lg">
-      <h2 className="text-xl font-semibold mb-4 text-blue-600">Terms of Service</h2>
-      <div className="space-y-4">
-        <p className="text-gray-700">
-          By using this service, you agree to our terms. Please read carefully.
-        </p>
-        {expanded && (
-          <ul className="list-disc pl-6 space-y-2 text-gray-700">
-            <li>Respect all users and their privacy.</li>
-            <li>Do not misuse the platform.</li>
-            <li>Your data may be stored securely.</li>
-            <li>We reserve the right to update terms.</li>
-          </ul>
-        )}
-        <button
-          className="mt-4 text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-100 transition"
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded ? "Show Less" : "Read More"}
-        </button>
+    <div className="min-h-screen bg-gradient-to-b from-base-100 to-base-200 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+            Terms of Service
+          </h1>
+          
+        </div>
+
+        {/* Main Content Card */}
+        <div className="bg-base-100 rounded-2xl shadow-xl p-8 border border-base-300">
+          <div className="flex items-start gap-6 mb-8">
+            <div className="p-4 bg-primary/10 rounded-xl flex-shrink-0">
+              <FaBalanceScale className="w-8 h-8 text-primary" />
+            </div>
+            <div>
+              <p className="text-xl text-base-content/80">
+                By using Campus Partner, you agree to our terms of service. Please read them carefully.
+              </p>
+            </div>
+          </div>
+
+          {/* Permanent Content Section */}
+          <div className="space-y-6">
+            {/* Terms List */}
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Term 1 */}
+              <div className="bg-base-200 p-6 rounded-xl">
+                <div className="flex items-center gap-4 mb-4">
+                  <FaUserLock className="w-6 h-6 text-secondary" />
+                  <h3 className="text-lg font-bold text-base-content">User Conduct</h3>
+                </div>
+                <p className="text-base-content/80">
+                  Respect all users and maintain appropriate behavior. Harassment or abuse will not be tolerated.
+                </p>
+              </div>
+
+              {/* Term 2 */}
+              <div className="bg-base-200 p-6 rounded-xl">
+                <div className="flex items-center gap-4 mb-4">
+                  <FaShieldAlt className="w-6 h-6 text-success" />
+                  <h3 className="text-lg font-bold text-base-content">Platform Usage</h3>
+                </div>
+                <p className="text-base-content/80">
+                  Do not misuse the platform for illegal activities or spam. Commercial use requires prior authorization.
+                </p>
+              </div>
+
+              {/* Term 3 */}
+              <div className="bg-base-200 p-6 rounded-xl">
+                <div className="flex items-center gap-4 mb-4">
+                  <FaFileContract className="w-6 h-6 text-primary" />
+                  <h3 className="text-lg font-bold text-base-content">Data Handling</h3>
+                </div>
+                <p className="text-base-content/80">
+                  We securely store necessary data to provide services. You retain ownership of your content.
+                </p>
+              </div>
+            </div>
+
+            {/* Additional Terms */}
+            <div className="bg-base-200 p-6 rounded-xl">
+              <h3 className="text-lg font-bold text-base-content mb-4">Updates & Modifications</h3>
+              <p className="text-base-content/80">
+                We reserve the right to update these terms periodically. Continued use after changes constitutes acceptance.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

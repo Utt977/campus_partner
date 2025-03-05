@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.typing-indicator {
+    display: inline-flex;
+    padding: 12px;
+    background: #374151;
+    border-radius: 20px;
+  }
+  
+  .typing-indicator span {
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
+    background: #9CA3AF;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+  }
+  
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  
+  @keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }

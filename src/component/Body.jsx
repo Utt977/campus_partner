@@ -32,12 +32,16 @@ const Body = () => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen"> {/* Flex container to ensure full height */}
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-grow"> {/* Ensures content takes up available space */}
+      <main className="flex-grow">
         <Outlet />
       </main>
-      <Footer />
+      
+      {/* Hide footer on mobile, show from md screens up */}
+      <div className="hidden md:block">
+        <Footer />
+      </div>
     </div>
   );
 };
