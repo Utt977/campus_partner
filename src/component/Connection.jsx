@@ -7,31 +7,34 @@ import { addConnection } from '../utils/connectionSlice';
 import { createSocketConnection } from '../utils/socket';
 
 const Connection = () => {
-    const [chats, setChats] = useState([]);
+    const [chats, setChats] = useState([]); // Active chats with messages
+    const [connections, setConnections] = useState([]); // All accepted connections
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const user = useSelector((store) => store.user);
     const dispatch = useDispatch();
 
-    const fetchChats = async () => {
+    const fetchData = async () => {
         try {
             const [chatRes, connRes] = await Promise.all([
                 axios.get(`${BASE_URL}/chats`, { withCredentials: true }),
                 axios.get(`${BASE_URL}/user/connections`, { withCredentials: true })
             ]);
             
-            setChats(chatRes.data);
-            dispatch(addConnection(connRes.data?.data || []));
+            setChats(chatRes.data || []);
+            const acceptedConnections = connRes.data?.data || [];
+            setConnections(acceptedConnections);
+            dispatch(addConnection(acceptedConnections));
             setError(null);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to load chats');
+            setError(err.response?.data?.message || 'Failed to load data');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchChats();
+        fetchData();
 
         const socket = createSocketConnection();
         socket.on('unreadCountUpdate', ({ chatId, unreadCount }) => {
@@ -41,11 +44,11 @@ const Connection = () => {
         });
 
         socket.on('messageReceived', () => {
-            fetchChats(); // Refresh chats for real-time unread count
+            fetchData(); // Refresh chats and connections
         });
 
         socket.on('messageSeen', () => {
-            fetchChats(); // Update when messages are seen
+            fetchData(); // Update when messages are seen
         });
 
         return () => {
@@ -66,6 +69,21 @@ const Connection = () => {
         if (hours < 24) return `${hours}h`;
         const days = Math.floor(hours / 24);
         return `${days}d`;
+    };
+
+    // Combine chats and connections, prioritizing chats with messages
+    const combinedList = () => {
+        const chatMap = new Map(chats.map(chat => {
+            const otherUser = chat.participants.find(p => p._id !== user._id);
+            return [otherUser._id, { ...chat, otherUser }];
+        }));
+
+        const allConnections = connections.map(conn => {
+            const chat = chatMap.get(conn._id);
+            return chat || { otherUser: conn, messages: [], unreadCount: {} };
+        });
+
+        return allConnections;
     };
 
     if (loading) {
@@ -89,15 +107,16 @@ const Connection = () => {
         );
     }
 
-    if (!chats.length) {
+    const connectionList = combinedList();
+    if (!connectionList.length) {
         return (
             <div className="text-center py-20 px-4 bg-gray-900 min-h-screen">
                 <div className="max-w-md mx-auto">
                     <svg className="w-16 h-16 text-gray-500 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16h6m-7 4h8a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <h2 className="text-2xl font-bold text-white mb-2">No Chats Yet</h2>
-                    <p className="text-gray-400">Start chatting with your connections!</p>
+                    <h2 className="text-2xl font-bold text-white mb-2">No Connections Yet</h2>
+                    <p className="text-gray-400">Start connecting with others!</p>
                 </div>
             </div>
         );
@@ -107,14 +126,14 @@ const Connection = () => {
         <div className="max-w-2xl mx-auto bg-gray-900 min-h-screen px-4 py-6">
             <h1 className="text-2xl font-semibold text-white mb-6">Chats</h1>
             <div className="space-y-2">
-                {chats.map((chat) => {
-                    const otherUser = chat.participants.find(p => p._id !== user._id);
-                    const unreadCount = chat.unreadCount[user._id] || 0;
-                    const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
+                {connectionList.map((item) => {
+                    const { otherUser, messages, unreadCount } = item;
+                    const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+                    const unread = unreadCount[user._id] || 0;
 
                     return (
                         <Link 
-                            key={chat._id}
+                            key={otherUser._id}
                             to={`/chat/${otherUser._id}`}
                             className="flex items-center justify-between p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-all border-b border-gray-700/50"
                         >
@@ -141,16 +160,16 @@ const Connection = () => {
                                             {lastMessage ? formatTime(lastMessage.createdAt) : formatTime(otherUser.lastActive)}
                                         </span>
                                     </div>
-                                    <p className={`text-sm truncate ${unreadCount > 0 ? 'text-purple-400 font-medium' : 'text-gray-400'}`}>
+                                    <p className={`text-sm truncate ${unread > 0 ? 'text-purple-400 font-medium' : 'text-gray-400'}`}>
                                         {lastMessage ? lastMessage.text : 'No messages yet'}
                                     </p>
                                 </div>
 
                                 {/* Unread Count Badge */}
-                                {unreadCount > 0 && (
+                                {unread > 0 && (
                                     <div className="flex-shrink-0">
                                         <span className="bg-green-500 text-white text-xs font-semibold rounded-full px-2 py-1">
-                                            {unreadCount}
+                                            {unread}
                                         </span>
                                     </div>
                                 )}
