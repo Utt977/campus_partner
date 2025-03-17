@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
 import { BASE_URL } from '../utils/constant';
@@ -9,6 +9,7 @@ import { FaTimes, FaHeart, FaBirthdayCake, FaTransgender, FaUniversity, FaStar }
 const UserCard = ({ user }) => {
   const dispatch = useDispatch();
   const { _id, firstName, lastName, age, gender, about, photoUrl, skills, college } = user;
+  const [isExpanded, setIsExpanded] = useState(false); // For "Read More" functionality
 
   const handleSendRequest = async (status, userId) => {
     try {
@@ -23,19 +24,26 @@ const UserCard = ({ user }) => {
     }
   };
 
+  // Dynamic border gradient based on skills
+  const getBorderColor = () => {
+    if (skills?.includes('Tech')) return 'border-blue-500';
+    if (skills?.includes('Business')) return 'border-green-500';
+    return 'border-purple-500';
+  };
+
   return (
     <motion.div 
-      className="relative w-full max-w-sm mx-4 sm:mx-auto bg-gray-800 rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300 mb-16 "
+      className={`relative w-full max-w-sm mx-4 sm:mx-auto bg-gray-800 rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300 mb-16 border-2 ${getBorderColor()} hover:border-opacity-70 h-[80vh] flex flex-col`}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
     >
       {/* Profile Image Section */}
-      <div className="relative h-72 w-full"> 
+      <div className="relative h-[40%] w-full flex-shrink-0">
         <img
           src={photoUrl}
           alt={`${firstName} ${lastName}`}
-          className="w-full h-full object-contain object-center" 
+          className="w-full h-full object-contain object-center"
           onError={(e) => {
             e.target.onerror = null;
             e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
@@ -45,7 +53,7 @@ const UserCard = ({ user }) => {
       </div>
 
       {/* Profile Content */}
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-4 h-[60%] flex flex-col overflow-y-auto">
         <div className="space-y-2">
           <h2 className="text-2xl font-bold text-gray-100">
             {firstName} {lastName}
@@ -97,13 +105,19 @@ const UserCard = ({ user }) => {
 
         {/* About */}
         {about && (
-          <p className="text-gray-400 text-sm leading-relaxed line-clamp-3">
-            {about}
-          </p>
+          <div className="text-gray-400 text-sm leading-relaxed">
+            <p className={isExpanded ? '' : 'line-clamp-3'}>{about}</p>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-purple-400 hover:text-purple-300 text-sm mt-1"
+            >
+              {isExpanded ? 'Read Less' : 'Read More'}
+            </button>
+          </div>
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-3 mt-4">
+        <div className="flex gap-3 mt-4 flex-shrink-0">
           <motion.button
             onClick={() => handleSendRequest('ignored', _id)}
             whileHover={{ scale: 1.05 }}

@@ -15,29 +15,29 @@ import ContactUs from "./component/ContactUs";
 import RefundPolicy from "./component/RefundPolicy";
 
 const App = () => {
-  return (
-    <Provider store={appStore}>
-      <BrowserRouter basename="/">
-        <div className="flex flex-col min-h-screen"> {/* Flex container to ensure full height */}
-          <Routes>
-            <Route path="/" element={<Body />}>
-              <Route path="/" element={<Feed />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/connections" element={<Connection />} />
-              <Route path="/requests" element={<Request />} />
-              <Route path="/chat/:targetUserId" element={<Chat />} />
-              <Route path="/terms-and-conditions" element={<TermsOfService />} />
-              <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
-              <Route path="/shipping-and-delivery" element={<RefundPolicy />} />
-              <Route path="/contact-us" element={<ContactUs />} />
-              <Route path="/privacy-policy" element={<Privacy />} />
-            </Route>
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </Provider>
-  );
+    return (
+        <Provider store={appStore}>
+            <BrowserRouter basename="/">
+                <div className="flex flex-col min-h-screen">
+                    <Routes>
+                        <Route path="/" element={<Body />}>
+                            <Route path="/" element={<Feed />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/connections" element={<Connection />} />
+                            <Route path="/requests" element={<Request />} />
+                            <Route path="/chat/:targetUserId" element={<Chat />} />
+                            <Route path="/terms-and-conditions" element={<TermsOfService />} />
+                            <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
+                            <Route path="/shipping-and-delivery" element={<RefundPolicy />} />
+                            <Route path="/contact-us" element={<ContactUs />} />
+                            <Route path="/privacy-policy" element={<Privacy />} />
+                        </Route>
+                    </Routes>
+                </div>
+            </BrowserRouter>
+        </Provider>
+    );
 };
 
 export default App;
